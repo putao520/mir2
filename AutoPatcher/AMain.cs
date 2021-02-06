@@ -16,7 +16,7 @@ namespace AutoPatcher
 
         private FileInformation _currentFile;
         public bool Completed, Checked, ErrorFound;
-        
+
         public List<FileInformation> OldList;
         public Queue<FileInformation> DownloadList;
 
@@ -46,8 +46,9 @@ namespace AutoPatcher
             }
             else
             {
-                MessageBox.Show("Could not get Patch Information.");
+                MessageBox.Show("无法获得更新文件信息.");
                 Completed = true;
+                Environment.Exit(0);
                 return;
             }
 
@@ -183,7 +184,7 @@ namespace AutoPatcher
                         if (e.Error != null)
                         {
                             File.AppendAllText(@".\Error.txt",
-                                   string.Format("[{0}] {1}{2}", DateTime.Now, info.FileName + " could not be downloaded. (" + e.Error.Message + ")", Environment.NewLine));
+                                   string.Format("[{0}] {1}{2}", DateTime.Now, info.FileName + " 无法下载. (" + e.Error.Message + ")", Environment.NewLine));
                             ErrorFound = true;
                         }
                         else
@@ -211,7 +212,7 @@ namespace AutoPatcher
             }
             catch
             {
-                MessageBox.Show(string.Format("Failed to download file: {0}", fileName));
+                MessageBox.Show(string.Format("下载文件: {0} 失败", fileName));
             }
         }
 
@@ -284,12 +285,6 @@ namespace AutoPatcher
             };
         }
 
-        private void ImageLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            ImageLinkLabel.LinkVisited = true;
-            Process.Start("http://www.lomcn.org/forum/member.php?5330-DevilsKnight");
-        }
-
         private void AMain_Load(object sender, EventArgs e)
         {
             PlayButton.Enabled = false;
@@ -308,21 +303,21 @@ namespace AutoPatcher
                         Play();
                         return;
                     }
-                    ActionLabel.Text = "Completed.";
-                    SizeLabel.Text = "Completed.";
-                    FileLabel.Text = "Completed.";
-                    SpeedLabel.Text = "Completed.";
+                    ActionLabel.Text = "已完成.";
+                    SizeLabel.Text = "已完成.";
+                    FileLabel.Text = "已完成.";
+                    SpeedLabel.Text = "已完成.";
                     progressBar1.Value = 100;
                     progressBar2.Value = 100;
                     PlayButton.Enabled = true;
                     InterfaceTimer.Enabled = false;
 
-                    if (ErrorFound) MessageBox.Show("One or more files failed to download, check Error.txt for details.", "Failed to Download.");
+                    if (ErrorFound) MessageBox.Show("一个或者多个文件下载失败, 检查 Error.txt 查看详情.", "下载失败.");
                     ErrorFound = false;
                     return;
                 }
 
-                ActionLabel.Text = !Checked ? string.Format("Checking Files... {0}/{1}", _currentCount, _fileCount) : string.Format("Downloading... {0}/{1}", _currentCount, _fileCount);
+                ActionLabel.Text = !Checked ? string.Format("检查文件... {0}/{1}", _currentCount, _fileCount) : string.Format("正在下载... {0}/{1}", _currentCount, _fileCount);
                 SizeLabel.Text = string.Format("{0:#,##0} MB / {1:#,##0} MB", (_completedBytes + _currentBytes) / 1024 / 1024, _totalBytes / 1024 / 1024);
 
                 if (_currentFile != null)
@@ -336,7 +331,7 @@ namespace AutoPatcher
             catch
 
             {
-                
+
             }
 
         }
@@ -359,18 +354,10 @@ namespace AutoPatcher
                 Process.Start(info);
             }
             else
-                MessageBox.Show(Settings.Client + "Client.exe not found.", "Client not found.");
+                MessageBox.Show(Settings.Client + "Client.exe 没有找到.", "客户端没有找到.");
             Close();
 
         }
-
-        private void SourceLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            SourceLinkLabel.LinkVisited = true;
-            Process.Start("http://www.lomcn.org/forum/member.php?141-Jamie-Hello");
-        }
-
-
     }
 
     public class FileInformation

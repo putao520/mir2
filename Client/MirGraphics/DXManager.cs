@@ -1,13 +1,17 @@
-﻿using System;
+﻿using Client.MirControls;
+using Client.MirScenes;
+using SharpDX;
+using SharpDX.Direct3D9;
+using SharpDX.Mathematics.Interop;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using Client.MirControls;
-using Client.MirScenes;
-using SlimDX;
-using SlimDX.Direct3D9;
-using Blend = SlimDX.Direct3D9.Blend;
+using Blend = SharpDX.Direct3D9.Blend;
+using Color = System.Drawing.Color;
+using Point = System.Drawing.Point;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace Client.MirGraphics
 {
@@ -91,9 +95,7 @@ namespace Client.MirGraphics
                 devFlags |= CreateFlags.PureDevice;
 
 
-            Device = new Device(d3d, d3d.Adapters.DefaultAdapter.Adapter, devType, Program.Form.Handle, devFlags, Parameters);
-
-            Device.SetDialogBoxMode(true);
+            Device = new Device(d3d, 0, devType, Program.Form.Handle, devFlags, Parameters);
 
             LoadTextures();
             LoadPixelsShaders();
@@ -132,21 +134,21 @@ namespace Client.MirGraphics
             CurrentSurface = MainSurface;
             Device.SetRenderTarget(0, MainSurface);
 
-            if (RadarTexture == null || RadarTexture.Disposed)
+            if (RadarTexture == null || RadarTexture.IsDisposed)
             {
                 RadarTexture = new Texture(Device, 2, 2, 1, Usage.None, Format.A8R8G8B8, Pool.Managed);
 
                 DataRectangle stream = RadarTexture.LockRectangle(0, LockFlags.Discard);
-                using (Bitmap image = new Bitmap(2, 2, 8, PixelFormat.Format32bppArgb, stream.Data.DataPointer))
+                using (Bitmap image = new Bitmap(2, 2, 8, PixelFormat.Format32bppArgb, stream.DataPointer))
                 using (Graphics graphics = Graphics.FromImage(image))
                     graphics.Clear(Color.White);
             }
-            if (PoisonDotBackground == null || PoisonDotBackground.Disposed)
+            if (PoisonDotBackground == null || PoisonDotBackground.IsDisposed)
             {
                 PoisonDotBackground = new Texture(Device, 5, 5, 1, Usage.None, Format.A8R8G8B8, Pool.Managed);
 
                 DataRectangle stream = PoisonDotBackground.LockRectangle(0, LockFlags.Discard);
-                using (Bitmap image = new Bitmap(5, 5, 20, PixelFormat.Format32bppArgb, stream.Data.DataPointer))
+                using (Bitmap image = new Bitmap(5, 5, 20, PixelFormat.Format32bppArgb, stream.DataPointer))
                 using (Graphics graphics = Graphics.FromImage(image))
                     graphics.Clear(Color.White);
             }
@@ -171,7 +173,7 @@ namespace Client.MirGraphics
                 Texture light = new Texture(Device, width, height, 1, Usage.None, Format.A8R8G8B8, Pool.Managed);
 
                 DataRectangle stream = light.LockRectangle(0, LockFlags.Discard);
-                using (Bitmap image = new Bitmap(width, height, width * 4, PixelFormat.Format32bppArgb, stream.Data.DataPointer))
+                using (Bitmap image = new Bitmap(width, height, width * 4, PixelFormat.Format32bppArgb, stream.DataPointer))
                 {
                     using (Graphics graphics = Graphics.FromImage(image))
                     {
@@ -273,7 +275,7 @@ namespace Client.MirGraphics
             DXManager.CleanUp();
             DXManager.DeviceLost = true;
 
-            if (DXManager.Parameters == null) return;
+            // if (Parameters. == null) return;
 
             Size clientSize = Program.Form.ClientSize;
 
@@ -325,8 +327,8 @@ namespace Client.MirGraphics
             Device.SetRenderState(RenderState.AlphaBlendEnable, true);
             if (opacity >= 1 || opacity < 0)
             {
-                Device.SetRenderState(RenderState.SourceBlend, SlimDX.Direct3D9.Blend.SourceAlpha);
-                Device.SetRenderState(RenderState.DestinationBlend, SlimDX.Direct3D9.Blend.InverseSourceAlpha);
+                Device.SetRenderState(RenderState.SourceBlend, SharpDX.Direct3D9.Blend.SourceAlpha);
+                Device.SetRenderState(RenderState.DestinationBlend, SharpDX.Direct3D9.Blend.InverseSourceAlpha);
                 Device.SetRenderState(RenderState.SourceBlendAlpha, Blend.One);
                 Device.SetRenderState(RenderState.BlendFactor, Color.FromArgb(255, 255, 255, 255).ToArgb());
             }
@@ -386,8 +388,8 @@ namespace Client.MirGraphics
 
             Sprite.Flush();
             Device.PixelShader = NormalPixelShader;
-            Device.SetPixelShaderConstant(0, new Vector4[] { new Vector4(1.0F, 1.0F, 1.0F, blend) });
-            Device.SetPixelShaderConstant(1, new Vector4[] { new Vector4(tintcolor.R / 255, tintcolor.G / 255, tintcolor.B / 255, 1.0F) });
+            Device.SetPixelShaderConstant(0, new RawVector4[] { new Vector4(1.0F, 1.0F, 1.0F, blend) });
+            Device.SetPixelShaderConstant(1, new RawVector4[] { new Vector4(tintcolor.R / 255, tintcolor.G / 255, tintcolor.B / 255, 1.0F) });
             Sprite.Flush();
         }
 
@@ -398,8 +400,8 @@ namespace Client.MirGraphics
 
             Sprite.Flush();
             Device.PixelShader = GrayScalePixelShader;
-            Device.SetPixelShaderConstant(0, new Vector4[] { new Vector4(1.0F, 1.0F, 1.0F, blend) });
-            Device.SetPixelShaderConstant(1, new Vector4[] { new Vector4(tintcolor.R / 255, tintcolor.G / 255, tintcolor.B / 255, 1.0F) });
+            Device.SetPixelShaderConstant(0, new RawVector4[] { new Vector4(1.0F, 1.0F, 1.0F, blend) });
+            Device.SetPixelShaderConstant(1, new RawVector4[] { new Vector4(tintcolor.R / 255, tintcolor.G / 255, tintcolor.B / 255, 1.0F) });
             Sprite.Flush();
         }
 
@@ -410,8 +412,8 @@ namespace Client.MirGraphics
 
             Sprite.Flush();
             Device.PixelShader = MagicPixelShader;
-            Device.SetPixelShaderConstant(0, new Vector4[] { new Vector4(1.0F, 1.0F, 1.0F, blend) });
-            Device.SetPixelShaderConstant(1, new Vector4[] { new Vector4(tintcolor.R / 255, tintcolor.G / 255, tintcolor.B / 255, 1.0F) });
+            Device.SetPixelShaderConstant(0, new RawVector4[] { new Vector4(1.0F, 1.0F, 1.0F, blend) });
+            Device.SetPixelShaderConstant(1, new RawVector4[] { new Vector4(tintcolor.R / 255, tintcolor.G / 255, tintcolor.B / 255, 1.0F) });
             Sprite.Flush();
         }
 
@@ -453,7 +455,7 @@ namespace Client.MirGraphics
         {
             if (Sprite != null)
             {
-                if (!Sprite.Disposed)
+                if (!Sprite.IsDisposed)
                 {
                     Sprite.Dispose();
                 }
@@ -463,7 +465,7 @@ namespace Client.MirGraphics
 
             if (Line != null)
             {
-                if (!Line.Disposed)
+                if (!Line.IsDisposed)
                 {
                     Line.Dispose();
                 }
@@ -473,7 +475,7 @@ namespace Client.MirGraphics
 
             if (CurrentSurface != null)
             {
-                if (!CurrentSurface.Disposed)
+                if (!CurrentSurface.IsDisposed)
                 {
                     CurrentSurface.Dispose();
                 }
@@ -483,7 +485,7 @@ namespace Client.MirGraphics
 
             if (PoisonDotBackground != null)
             {
-                if (!PoisonDotBackground.Disposed)
+                if (!PoisonDotBackground.IsDisposed)
                 {
                     PoisonDotBackground.Dispose();
                 }
@@ -493,7 +495,7 @@ namespace Client.MirGraphics
 
             if (RadarTexture != null)
             {
-                if (!RadarTexture.Disposed)
+                if (!RadarTexture.IsDisposed)
                 {
                     RadarTexture.Dispose();
                 }
@@ -503,7 +505,7 @@ namespace Client.MirGraphics
 
             if (FloorTexture != null)
             {
-                if (!FloorTexture.Disposed)
+                if (!FloorTexture.IsDisposed)
                 {
                     FloorTexture.Dispose();
                 }
@@ -511,7 +513,7 @@ namespace Client.MirGraphics
                 DXManager.FloorTexture = null;
                 GameScene.Scene.MapControl.FloorValid = false;
 
-                if (DXManager.FloorSurface != null && !DXManager.FloorSurface.Disposed)
+                if (DXManager.FloorSurface != null && !DXManager.FloorSurface.IsDisposed)
                 {
                     DXManager.FloorSurface.Dispose();
                 }
@@ -521,12 +523,12 @@ namespace Client.MirGraphics
 
             if (LightTexture != null)
             {
-                if (!LightTexture.Disposed)
+                if (!LightTexture.IsDisposed)
                     LightTexture.Dispose();
 
                 DXManager.LightTexture = null;
 
-                if (DXManager.LightSurface != null && !DXManager.LightSurface.Disposed)
+                if (DXManager.LightSurface != null && !DXManager.LightSurface.IsDisposed)
                 {
                     DXManager.LightSurface.Dispose();
                 }
@@ -538,7 +540,7 @@ namespace Client.MirGraphics
             {
                 for (int i = 0; i < Lights.Count; i++)
                 {
-                    if (!Lights[i].Disposed)
+                    if (!Lights[i].IsDisposed)
                         Lights[i].Dispose();
                 }
                 Lights.Clear();

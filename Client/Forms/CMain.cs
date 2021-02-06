@@ -1,4 +1,13 @@
-﻿using System;
+﻿using Client.MirControls;
+using Client.MirGraphics;
+using Client.MirNetwork;
+using Client.MirScenes;
+using Client.MirSounds;
+using Client.Utils;
+using SharpDX;
+using SharpDX.Direct3D9;
+using SharpDX.Windows;
+using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -9,14 +18,10 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Threading;
 using System.Windows.Forms;
-using Client.MirControls;
-using Client.MirGraphics;
-using Client.MirNetwork;
-using Client.MirScenes;
-using Client.MirSounds;
-using SlimDX.Direct3D9;
-using SlimDX.Windows;
+using Color = System.Drawing.Color;
 using Font = System.Drawing.Font;
+using Point = System.Drawing.Point;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace Client
 {
@@ -83,7 +88,7 @@ namespace Client
             try
             {
                 ClientSize = new Size(Settings.ScreenWidth, Settings.ScreenHeight);
-                
+
                 DXManager.Create();
                 SoundManager.Create();
                 CenterToScreen();
@@ -298,7 +303,7 @@ namespace Client
             Time = Timer.ElapsedMilliseconds;
         }
         private static void UpdateEnviroment()
-        {  
+        {
 
             if (Time >= _fpsTime)
             {
@@ -340,7 +345,7 @@ namespace Client
                     return;
                 }
 
-                DXManager.Device.Clear(ClearFlags.Target, Color.CornflowerBlue, 0, 0);
+                DXManager.Device.Clear(ClearFlags.Target, SharpDX.Color.CornflowerBlue, 0, 0);
                 DXManager.Device.BeginScene();
                 DXManager.Sprite.Begin(SpriteFlags.AlphaBlend);
                 DXManager.SetSurface(DXManager.MainSurface);
@@ -352,7 +357,7 @@ namespace Client
                 DXManager.Device.EndScene();
                 DXManager.Device.Present();
             }
-            catch (Direct3D9Exception ex)
+            catch (SharpDXException ex)
             {
                 DXManager.DeviceLost = true;
             }
@@ -517,9 +522,9 @@ namespace Client
 
             if (MirScene.ActiveScene == GameScene.Scene)
             {
-                GameScene.Scene.MapControl.FloorValid = false; 
+                GameScene.Scene.MapControl.FloorValid = false;
                 GameScene.Scene.TextureValid = false;
-            }        
+            }
         }
 
         public void CreateScreenShot()
@@ -584,19 +589,19 @@ namespace Client
             Settings.ScreenHeight = height;
             Program.Form.ClientSize = new Size(width, height);
 
-            DXManager.Device.Clear(ClearFlags.Target, Color.Black, 0, 0);
+            DXManager.Device.Clear(ClearFlags.Target, SharpDX.Color.Black, 0, 0);
             DXManager.Device.Present();
             DXManager.ResetDevice();
 
             Program.Form.CenterToScreen();
         }
-            
+
 
         #region ScreenCapture
 
         //private Bitmap CaptureScreen()
         //{
-            
+
         //}
 
         #endregion

@@ -1,25 +1,31 @@
-﻿using System;
+﻿using Client.MirControls;
+using Client.MirGraphics;
+using Client.MirNetwork;
+using Client.MirObjects;
+using Client.MirScenes.Dialogs;
+using Client.MirScenes.Dialogs;
+using Client.MirSounds;
+using Client.Utils;
+using SharpDX;
+using SharpDX.Direct3D9;
+using SharpDX.Mathematics.Interop;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using Client.MirControls;
-using Client.MirGraphics;
-using Client.MirNetwork;
-using Client.MirObjects;
-using Client.MirSounds;
-using SlimDX;
-using SlimDX.Direct3D9;
-using Font = System.Drawing.Font;
-using S = ServerPackets;
 using C = ClientPackets;
+using Color = System.Drawing.Color;
 using Effect = Client.MirObjects.Effect;
-
-using Client.MirScenes.Dialogs;
-using System.Drawing.Imaging;
+using Font = System.Drawing.Font;
+using Point = System.Drawing.Point;
+using Rectangle = System.Drawing.Rectangle;
+using S = ServerPackets;
 
 namespace Client.MirScenes.Dialogs
 {
@@ -892,7 +898,7 @@ namespace Client.MirScenes.Dialogs
             }
 
             chat.Add(text.Substring(index, text.Length - index));
-            
+
             if (StartIndex == History.Count - LineCount)
                 StartIndex += chat.Count;
 
@@ -1011,9 +1017,9 @@ namespace Client.MirScenes.Dialogs
 
                         ChatLink(values[0], ulong.Parse(values[1]), temp.Location.Add(new Point(size.Width - 10, 0)));
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
-						//Temporary debug to catch unknown error
+                        //Temporary debug to catch unknown error
                         CMain.SaveError(ex.ToString());
                         CMain.SaveError(currentLine);
                         CMain.SaveError(capture.Value);
@@ -2155,7 +2161,7 @@ namespace Client.MirScenes.Dialogs
                 return CMain.InputKeys.GetKey(KeybindOptions.Bar2Skill8);
             return "";
         }
-                    
+
 
         void MagicKeyDialog_BeforeDraw(object sender, EventArgs e)
         {
@@ -2167,7 +2173,7 @@ namespace Client.MirScenes.Dialogs
             HasSkill = false;
             foreach (var m in GameScene.User.Magics)
             {
-                if ((m.Key < (BarIndex * 8)+1) || (m.Key > ((BarIndex + 1) * 8)+1)) continue;
+                if ((m.Key < (BarIndex * 8) + 1) || (m.Key > ((BarIndex + 1) * 8) + 1)) continue;
                 HasSkill = true;
             }
             if (!Visible) return;
@@ -2193,7 +2199,7 @@ namespace Client.MirScenes.Dialogs
 
                     //string key = m.Key > 8 ? string.Format("CTRL F{0}", i) : string.Format("F{0}", m.Key);
 
-                    Cells[i - 1].Index = magic.Icon*2;
+                    Cells[i - 1].Index = magic.Icon * 2;
                     Cells[i - 1].Hint = string.Format("{0}\nMP: {1}\nCooldown: {2}\nKey: {3}", magic.Name,
                         (magic.BaseCost + (magic.LevelCost * magic.Level)), Functions.PrintTimeSpanFromMilliSeconds(magic.Delay), key);
 
@@ -3182,7 +3188,7 @@ namespace Client.MirScenes.Dialogs
                 else
                     colour = Color.FromArgb(255, 0, 0);
 
-                DXManager.Sprite.Draw(DXManager.RadarTexture, new Rectangle(0, 0, 2, 2), Vector3.Zero, new Vector3((float)(x - 0.5), (float)(y - 0.5), 0.0F), colour);
+                DXManager.Sprite.Draw(DXManager.RadarTexture, colour.ToRawColorBGRA(), new RawRectangle(0, 0, 2, 2), Vector3.Zero, new Vector3((float)(x - 0.5), (float)(y - 0.5), 0.0F));
 
                 #region NPC Quest Icons
 
@@ -4839,11 +4845,11 @@ namespace Client.MirScenes.Dialogs
     }
     public sealed class BigMapDialog : MirControl
     {
-	float ScaleX;
+        float ScaleX;
         float ScaleY;
-	
+
         int BigMap_MouseCoordsProcessing_OffsetX, BigMap_MouseCoordsProcessing_OffsetY;
-            
+
         public BigMapDialog()
         {
             NotControl = false;
@@ -4852,15 +4858,15 @@ namespace Client.MirScenes.Dialogs
             //BorderColour = Color.Lime;
             BeforeDraw += (o, e) => OnBeforeDraw();
             Sort = true;
-	    
+
             MouseMove += UpdateBigMapCoordinates;
         }
 
-	private void UpdateBigMapCoordinates(object sender, MouseEventArgs e)
+        private void UpdateBigMapCoordinates(object sender, MouseEventArgs e)
         {
             int MouseCoordsOnBigMap_MapValue_X = (int)((e.Location.X - BigMap_MouseCoordsProcessing_OffsetX) / ScaleX);
             int MouseCoordsOnBigMap_MapValue_Y = (int)((e.Location.Y - BigMap_MouseCoordsProcessing_OffsetY) / ScaleY);
-	    
+
             this.Hint = string.Format("{0},{1}", MouseCoordsOnBigMap_MapValue_X, MouseCoordsOnBigMap_MapValue_Y);
         }
 
@@ -4896,7 +4902,7 @@ namespace Client.MirScenes.Dialogs
             viewRect.X = (Settings.ScreenWidth - viewRect.Width) / 2;
             viewRect.Y = (Settings.ScreenHeight - 120 - viewRect.Height) / 2;
 
-	    BigMap_MouseCoordsProcessing_OffsetX = viewRect.X;
+            BigMap_MouseCoordsProcessing_OffsetX = viewRect.X;
             BigMap_MouseCoordsProcessing_OffsetY = viewRect.Y;
 
             Location = viewRect.Location;
@@ -4943,7 +4949,7 @@ namespace Client.MirScenes.Dialogs
                 else
                     colour = Color.FromArgb(255, 0, 0);
 
-                DXManager.Sprite.Draw(DXManager.RadarTexture, new Rectangle(0, 0, 2, 2), Vector3.Zero, new Vector3((float)(x - 0.5), (float)(y - 0.5), 0.0F), colour);
+                DXManager.Sprite.Draw(DXManager.RadarTexture, colour.ToRawColorBGRA(), new RawRectangle(0, 0, 2, 2), Vector3.Zero, new Vector3((float)(x - 0.5), (float)(y - 0.5), 0.0F));
             }
         }
 

@@ -1,13 +1,18 @@
-﻿using System;
+﻿using Client.MirObjects;
+using Client.Utils;
+using SharpDX;
+using SharpDX.Direct3D9;
+using SharpDX.Mathematics.Interop;
+using System;
 using System.Drawing;
 using System.IO;
-using System.Threading;
-using SlimDX;
-using SlimDX.Direct3D9;
 using System.IO.Compression;
-using Frame = Client.MirObjects.Frame;
-using Client.MirObjects;
 using System.Text.RegularExpressions;
+using System.Threading;
+using Color = System.Drawing.Color;
+using Frame = Client.MirObjects.Frame;
+using Point = System.Drawing.Point;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace Client.MirGraphics
 {
@@ -56,8 +61,8 @@ namespace Client.MirGraphics
 
         public static MLibrary[] CArmours,
                                           CWeapons,
-										  CWeaponEffect,
-										  CHair,
+                                          CWeaponEffect,
+                                          CHair,
                                           CHumEffect,
                                           AArmours,
                                           AWeaponsL,
@@ -143,25 +148,25 @@ namespace Client.MirGraphics
             }
             MapLibs[190] = new MLibrary(Settings.DataPath + "Map\\ShandaMir2\\AniTiles1");
             //wemade mir3 (allowed from 200-299)
-            string[] Mapstate = { "", "wood\\", "sand\\", "snow\\", "forest\\"};
+            string[] Mapstate = { "", "wood\\", "sand\\", "snow\\", "forest\\" };
             for (int i = 0; i < Mapstate.Length; i++)
             {
-                MapLibs[200 +(i*15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "Tilesc");
-                MapLibs[201 +(i*15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "Tiles30c");
-                MapLibs[202 +(i*15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "Tiles5c");
-                MapLibs[203 +(i*15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "Smtilesc");
-                MapLibs[204 +(i*15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "Housesc");
-                MapLibs[205 +(i*15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "Cliffsc");
-                MapLibs[206 +(i*15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "Dungeonsc");
-                MapLibs[207 +(i*15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "Innersc");
-                MapLibs[208 +(i*15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "Furnituresc");
-                MapLibs[209 +(i*15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "Wallsc");
-                MapLibs[210 +(i*15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "smObjectsc");
-                MapLibs[211 +(i*15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "Animationsc");
-                MapLibs[212 +(i*15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "Object1c");
+                MapLibs[200 + (i * 15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "Tilesc");
+                MapLibs[201 + (i * 15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "Tiles30c");
+                MapLibs[202 + (i * 15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "Tiles5c");
+                MapLibs[203 + (i * 15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "Smtilesc");
+                MapLibs[204 + (i * 15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "Housesc");
+                MapLibs[205 + (i * 15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "Cliffsc");
+                MapLibs[206 + (i * 15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "Dungeonsc");
+                MapLibs[207 + (i * 15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "Innersc");
+                MapLibs[208 + (i * 15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "Furnituresc");
+                MapLibs[209 + (i * 15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "Wallsc");
+                MapLibs[210 + (i * 15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "smObjectsc");
+                MapLibs[211 + (i * 15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "Animationsc");
+                MapLibs[212 + (i * 15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "Object1c");
                 MapLibs[213 + (i * 15)] = new MLibrary(Settings.DataPath + "Map\\WemadeMir3\\" + Mapstate[i] + "Object2c");
             }
-            Mapstate = new string[] { "", "wood", "sand", "snow", "forest"};
+            Mapstate = new string[] { "", "wood", "sand", "snow", "forest" };
             //shanda mir3 (allowed from 300-399)
             for (int i = 0; i < Mapstate.Length; i++)
             {
@@ -321,13 +326,13 @@ namespace Client.MirGraphics
                 Progress++;
             }
 
-			for (int i = 0; i < CWeaponEffect.Length; i++)
-			{
-				CWeaponEffect[i].Initialize();
-				Progress++;
-			}
+            for (int i = 0; i < CWeaponEffect.Length; i++)
+            {
+                CWeaponEffect[i].Initialize();
+                Progress++;
+            }
 
-			for (int i = 0; i < AArmours.Length; i++)
+            for (int i = 0; i < AArmours.Length; i++)
             {
                 AArmours[i].Initialize();
                 Progress++;
@@ -435,7 +440,7 @@ namespace Client.MirGraphics
                 TransformMounts[i].Initialize();
                 Progress++;
             }
-            
+
             Loaded = true;
         }
 
@@ -619,7 +624,7 @@ namespace Client.MirGraphics
                 return;
 
 
-            DXManager.Sprite.Draw(mi.Image, new Rectangle(0, 0, mi.Width, mi.Height), Vector3.Zero, new Vector3((float)x, (float)y, 0.0F), Color.White);
+            DXManager.Sprite.Draw(mi.Image, SharpDX.Color.White, new RawRectangle(0, 0, mi.Width, mi.Height), Vector3.Zero, new Vector3(x, y, 0.0F));
             mi.CleanTime = CMain.Time + Settings.CleanDelay;
         }
         public void Draw(int index, Point point, Color colour, bool offSet = false)
@@ -634,7 +639,7 @@ namespace Client.MirGraphics
             if (point.X >= Settings.ScreenWidth || point.Y >= Settings.ScreenHeight || point.X + mi.Width < 0 || point.Y + mi.Height < 0)
                 return;
 
-            DXManager.Sprite.Draw(mi.Image, new Rectangle(0, 0, mi.Width, mi.Height), Vector3.Zero, new Vector3((float)point.X, (float)point.Y, 0.0F), colour);
+            DXManager.Sprite.Draw(mi.Image, colour.ToRawColorBGRA(), new RawRectangle(0, 0, mi.Width, mi.Height), Vector3.Zero, new Vector3(point.X, point.Y, 0.0F));
 
             mi.CleanTime = CMain.Time + Settings.CleanDelay;
         }
@@ -654,7 +659,7 @@ namespace Client.MirGraphics
             float oldOpacity = DXManager.Opacity;
             DXManager.SetOpacity(opacity);
 
-            DXManager.Sprite.Draw(mi.Image, new Rectangle(0, 0, mi.Width, mi.Height), Vector3.Zero, new Vector3((float)point.X, (float)point.Y, 0.0F), colour);
+            DXManager.Sprite.Draw(mi.Image, colour.ToRawColorBGRA(), new RawRectangle(0, 0, mi.Width, mi.Height), Vector3.Zero, new Vector3(point.X, point.Y, 0.0F));
 
             DXManager.SetOpacity(oldOpacity);
             mi.CleanTime = CMain.Time + Settings.CleanDelay;
@@ -675,7 +680,7 @@ namespace Client.MirGraphics
             bool oldBlend = DXManager.Blending;
             DXManager.SetBlend(true, rate);
 
-            DXManager.Sprite.Draw(mi.Image, new Rectangle(0, 0, mi.Width, mi.Height), Vector3.Zero, new Vector3((float)point.X, (float)point.Y, 0.0F), colour);
+            DXManager.Sprite.Draw(mi.Image, colour.ToRawColorBGRA(), new RawRectangle(0, 0, mi.Width, mi.Height), Vector3.Zero, new Vector3(point.X, point.Y, 0.0F));
 
             DXManager.SetBlend(oldBlend);
             mi.CleanTime = CMain.Time + Settings.CleanDelay;
@@ -699,7 +704,7 @@ namespace Client.MirGraphics
             if (section.Bottom > mi.Height)
                 section.Height -= section.Bottom - mi.Height;
 
-            DXManager.Sprite.Draw(mi.Image, section, Vector3.Zero, new Vector3((float)point.X, (float)point.Y, 0.0F), colour);
+            DXManager.Sprite.Draw(mi.Image, colour.ToRawColorBGRA(), new RawRectangle(section.Left, section.Top, section.Right, section.Bottom), Vector3.Zero, new Vector3(point.X, point.Y, 0.0F));
 
             mi.CleanTime = CMain.Time + Settings.CleanDelay;
         }
@@ -723,7 +728,7 @@ namespace Client.MirGraphics
             float oldOpacity = DXManager.Opacity;
             DXManager.SetOpacity(opacity);
 
-            DXManager.Sprite.Draw(mi.Image, section, Vector3.Zero, new Vector3((float)point.X, (float)point.Y, 0.0F), colour);
+            DXManager.Sprite.Draw(mi.Image, colour.ToRawColorBGRA(), new RawRectangle(section.Left, section.Top, section.Right, section.Bottom), Vector3.Zero, new Vector3(point.X, point.Y, 0.0F));
 
             DXManager.SetOpacity(oldOpacity);
             mi.CleanTime = CMain.Time + Settings.CleanDelay;
@@ -743,7 +748,7 @@ namespace Client.MirGraphics
 
             Matrix matrix = Matrix.Scaling(scaleX, scaleY, 0);
             DXManager.Sprite.Transform = matrix;
-            DXManager.Sprite.Draw(mi.Image, new Rectangle(0, 0, mi.Width, mi.Height), Vector3.Zero, new Vector3((float)point.X / scaleX, (float)point.Y / scaleY, 0.0F), Color.White);
+            DXManager.Sprite.Draw(mi.Image, SharpDX.Color.White, new RawRectangle(0, 0, mi.Width, mi.Height), Vector3.Zero, new Vector3(point.X / scaleX, point.Y / scaleY, 0.0F));
             DXManager.Sprite.Transform = Matrix.Identity;
 
             mi.CleanTime = CMain.Time + Settings.CleanDelay;
@@ -761,11 +766,11 @@ namespace Client.MirGraphics
             if (point.X >= Settings.ScreenWidth || point.Y >= Settings.ScreenHeight || point.X + mi.Width < 0 || point.Y + mi.Height < 0)
                 return;
 
-            DXManager.Sprite.Draw(mi.Image, new Rectangle(0, 0, mi.Width, mi.Height), Vector3.Zero, new Vector3((float)point.X, (float)point.Y, 0.0F), colour);
+            DXManager.Sprite.Draw(mi.Image, colour.ToRawColorBGRA(), new RawRectangle(0, 0, mi.Width, mi.Height), Vector3.Zero, new Vector3(point.X, point.Y, 0.0F));
 
             if (mi.HasMask)
             {
-                DXManager.Sprite.Draw(mi.MaskImage, new Rectangle(0, 0, mi.Width, mi.Height), Vector3.Zero, new Vector3((float)point.X, (float)point.Y, 0.0F), Tint);
+                DXManager.Sprite.Draw(mi.MaskImage, Tint.ToRawColorBGRA(), new RawRectangle(0, 0, mi.Width, mi.Height), Vector3.Zero, new Vector3(point.X, point.Y, 0.0F));
             }
 
             mi.CleanTime = CMain.Time + Settings.CleanDelay;
@@ -786,7 +791,7 @@ namespace Client.MirGraphics
             if (x + mi.Width < 0 || y + mi.Height < 0)
                 return;
 
-            DXManager.Sprite.Draw(mi.Image, new Rectangle(0, 0, mi.Width, mi.Height), Vector3.Zero, new Vector3(x, y, 0.0F), Color.White);
+            DXManager.Sprite.Draw(mi.Image, SharpDX.Color.White, new RawRectangle(0, 0, mi.Width, mi.Height), Vector3.Zero, new Vector3(x, y, 0.0F));
             mi.CleanTime = CMain.Time + Settings.CleanDelay;
         }
         public void DrawUpBlend(int index, Point point)
@@ -805,7 +810,7 @@ namespace Client.MirGraphics
             bool oldBlend = DXManager.Blending;
             DXManager.SetBlend(true, 1);
 
-            DXManager.Sprite.Draw(mi.Image, new Rectangle(0, 0, mi.Width, mi.Height), Vector3.Zero, new Vector3((float)point.X, (float)point.Y, 0.0F), Color.White);
+            DXManager.Sprite.Draw(mi.Image, SharpDX.Color.White, new RawRectangle(0, 0, mi.Width, mi.Height), Vector3.Zero, new Vector3(point.X, point.Y, 0.0F));
 
             DXManager.SetBlend(oldBlend);
             mi.CleanTime = CMain.Time + Settings.CleanDelay;
@@ -881,14 +886,15 @@ namespace Client.MirGraphics
             int h = Height;// + (4 - Height % 4) % 4;
 
             Image = new Texture(DXManager.Device, w, h, 1, Usage.None, Format.A8R8G8B8, Pool.Managed);
-            DataRectangle stream = Image.LockRectangle(0, LockFlags.Discard);
-            Data = (byte*)stream.Data.DataPointer;
+            DataRectangle dataRect = Image.LockRectangle(0, LockFlags.Discard);
+            Data = (byte*)dataRect.DataPointer;
 
             byte[] decomp = DecompressImage(reader.ReadBytes(Length));
 
-            stream.Data.Write(decomp, 0, decomp.Length);
-
-            stream.Data.Dispose();
+            using (var stream = new DataStream(dataRect.DataPointer, Width * Height * 4, false, true))
+            {
+                stream.Write(decomp, 0, decomp.Length);
+            }
             Image.UnlockRectangle(0);
 
             if (HasMask)
@@ -898,13 +904,14 @@ namespace Client.MirGraphics
                 h = Height;// + (4 - Height % 4) % 4;
 
                 MaskImage = new Texture(DXManager.Device, w, h, 1, Usage.None, Format.A8R8G8B8, Pool.Managed);
-                stream = MaskImage.LockRectangle(0, LockFlags.Discard);
+                DataRectangle midr = MaskImage.LockRectangle(0, LockFlags.Discard);
 
                 decomp = DecompressImage(reader.ReadBytes(Length));
 
-                stream.Data.Write(decomp, 0, decomp.Length);
-
-                stream.Data.Dispose();
+                using (var stream = new DataStream(midr.DataPointer, Width * Height * 4, false, true))
+                {
+                    stream.Write(decomp, 0, decomp.Length);
+                }
                 MaskImage.UnlockRectangle(0);
             }
 
@@ -918,12 +925,12 @@ namespace Client.MirGraphics
         {
             DXManager.TextureList.Remove(this);
 
-            if (Image != null && !Image.Disposed)
+            if (Image != null && !Image.IsDisposed)
             {
                 Image.Dispose();
             }
 
-            if (MaskImage != null && !MaskImage.Disposed)
+            if (MaskImage != null && !MaskImage.IsDisposed)
             {
                 MaskImage.Dispose();
             }
@@ -946,9 +953,9 @@ namespace Client.MirGraphics
             {
                 int x = p.X;
                 int y = p.Y;
-                
+
                 int index = (y * (w << 2)) + (x << 2);
-                
+
                 byte col = Data[index];
 
                 if (col == 0) return false;

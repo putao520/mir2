@@ -1,24 +1,26 @@
-﻿using System;
+﻿using Client.MirControls;
+using Client.MirGraphics;
+using Client.MirNetwork;
+using Client.MirObjects;
+using Client.MirScenes.Dialogs;
+using Client.MirScenes.Dialogs;
+using Client.MirScenes.Dialogs;
+using Client.MirSounds;
+using SharpDX.Direct3D9;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using Client.MirControls;
-using Client.MirGraphics;
-using Client.MirNetwork;
-using Client.MirObjects;
-using Client.MirSounds;
-using SlimDX.Direct3D9;
-using Font = System.Drawing.Font;
-using S = ServerPackets;
 using C = ClientPackets;
 using Effect = Client.MirObjects.Effect;
-
-using Client.MirScenes.Dialogs;
-using System.Drawing.Imaging;
+using Font = System.Drawing.Font;
+using S = ServerPackets;
 
 namespace Client.MirScenes.Dialogs
 {
@@ -1040,7 +1042,7 @@ namespace Client.MirScenes.Dialogs
             if (y < 39) y = 39;
 
             int h = 277 - PositionBar.Size.Height;
-            h = (int)Math.Round(((y - 39) / (h / (float)(GuildBuffInfos.Count - 8))));
+            h = (int)Math.Round((y - 39) / (h / (float)(GuildBuffInfos.Count - 8)));
             PositionBar.Location = new Point(x, y);
             if (h == StartIndex) return;
             StartIndex = h;

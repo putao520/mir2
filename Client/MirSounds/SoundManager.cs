@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using SharpDX.DirectSound;
+using System.Collections.Generic;
 using System.IO;
-using SlimDX.DirectSound;
 
 namespace Client.MirSounds
 {
@@ -41,7 +41,6 @@ namespace Client.MirSounds
 
             Device = new DirectSound();
             Device.SetCooperativeLevel(Program.Form.Handle, CooperativeLevel.Normal);
-            Device.IsDefaultPool = false;
 
             LoadSoundList();
         }
@@ -72,7 +71,7 @@ namespace Client.MirSounds
             for (int i = 0; i < Sounds.Count; i++)
             {
                 if (Sounds[i].Index != index) continue;
-                
+
                 Sounds[i].Stop();
                 return;
             }
@@ -81,7 +80,7 @@ namespace Client.MirSounds
         public static void PlaySound(int index, bool loop = false)
         {
             if (Device == null) return;
-            
+
             if (_vol <= -3000) return;
 
             for (int i = 0; i < Sounds.Count; i++)
@@ -99,13 +98,13 @@ namespace Client.MirSounds
                 if (index > 20000)
                 {
                     index -= 20000;
-                    filename = string.Format("M{0:0}-{1:0}", index/10, index%10);
+                    filename = string.Format("M{0:0}-{1:0}", index / 10, index % 10);
 
                     Sounds.Add(GetSound(index + 20000, filename, loop));
                 }
                 else if (index < 10000)
                 {
-                    filename = string.Format("{0:000}-{1:0}", index/10, index%10);
+                    filename = string.Format("{0:000}-{1:0}", index / 10, index % 10);
 
                     var sound = GetSound(index, filename, loop);
 
@@ -248,7 +247,7 @@ namespace Client.MirSounds
 
             Revive = 20791,
             ZombieRevive = 0705,
-            
+
             //Mounts
             MountWalkL = 10176,
             MountWalkR = 10177,

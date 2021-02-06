@@ -1,8 +1,8 @@
-﻿using System;
+﻿using SharpDX.DirectSound;
+using SharpDX.Multimedia;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using SlimDX.DirectSound;
-using SlimDX.Multimedia;
 
 namespace Client.MirSounds
 {
@@ -11,7 +11,7 @@ namespace Client.MirSounds
         public int Index { get; set; }
 
         private List<SecondarySoundBuffer> _bufferList;
-        private WaveStream _stream;
+        private SoundStream _stream;
 
         private bool _loop;
 
@@ -34,16 +34,16 @@ namespace Client.MirSounds
         {
             Index = index;
 
-            _stream = new WaveStream(fileName);
+            _stream = new SoundStream(File.OpenRead(fileName));
 
             _desc = new SoundBufferDescription
             {
-                SizeInBytes = (int)_stream.Length,
+                BufferBytes = (int)_stream.Length,
                 Flags = BufferFlags.ControlVolume | BufferFlags.ControlPan | BufferFlags.GlobalFocus,
                 Format = _stream.Format
             };
 
-            _data = new byte[_desc.SizeInBytes];
+            _data = new byte[_desc.BufferBytes];
             _stream.Read(_data, 0, (int)_stream.Length);
 
             _loop = loop;
@@ -65,27 +65,27 @@ namespace Client.MirSounds
                     buffer.Write(_data, 0, LockFlags.None);
                     _bufferList.Add(buffer);
                 }
-                else if (_bufferList[0] == null || _bufferList[0].Disposed)
+                else if (_bufferList[0] == null || _bufferList[0].IsDisposed)
                 {
                     SecondarySoundBuffer buffer = new SecondarySoundBuffer(SoundManager.Device, _desc) { Volume = SoundManager.Vol };
                     buffer.Write(_data, 0, LockFlags.None);
                     _bufferList[0] = buffer;
                 }
 
-                if (_bufferList[0].Status != BufferStatus.Playing)
+                if ((BufferStatus)_bufferList[0].Status != BufferStatus.Playing)
                     _bufferList[0].Play(0, PlayFlags.Looping);
             }
             else
             {
                 for (int i = _bufferList.Count - 1; i >= 0; i--)
                 {
-                    if (_bufferList[i] == null || _bufferList[i].Disposed)
+                    if (_bufferList[i] == null || _bufferList[i].IsDisposed)
                     {
                         _bufferList.RemoveAt(i);
                         continue;
                     }
 
-                    if (_bufferList[i].Status != BufferStatus.Playing)
+                    if ((BufferStatus)_bufferList[i].Status != BufferStatus.Playing)
                     {
                         _bufferList[i].Volume = SoundManager.Vol;
                         _bufferList[i].Play(0, 0);
@@ -123,8 +123,8 @@ namespace Client.MirSounds
             _stream = null;
 
             if (_bufferList != null)
-            for (int i = 0; i < _bufferList.Count; i++)
-                _bufferList[i].Dispose();
+                for (int i = 0; i < _bufferList.Count; i++)
+                    _bufferList[i].Dispose();
             _bufferList = null;
 
             _loop = false;
@@ -136,7 +136,7 @@ namespace Client.MirSounds
             if (vol <= -3000) vol = -10000;
 
             for (int i = 0; i < _bufferList.Count; i++)
-                if (_bufferList[i] != null && !_bufferList[i].Disposed)
+                if (_bufferList[i] != null && !_bufferList[i].IsDisposed)
                 {
                     _bufferList[i].Volume = vol;
                 }
