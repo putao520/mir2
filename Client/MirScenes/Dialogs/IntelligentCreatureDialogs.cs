@@ -801,7 +801,7 @@ namespace Client.MirScenes.Dialogs
             if (GameScene.Scene.IntelligentCreatureOptionsDialog.Visible) GameScene.Scene.IntelligentCreatureOptionsDialog.BringToFront();
         }
 
-        public void Hide()
+        public override void Hide()
         {
             if (!Visible) return;
             if (GameScene.Scene.IntelligentCreatureOptionsGradeDialog.Visible) GameScene.Scene.IntelligentCreatureOptionsGradeDialog.Hide();
@@ -810,7 +810,7 @@ namespace Client.MirScenes.Dialogs
             AnimNeedSwitch = false;
             Visible = false;
         }
-        public void Show()
+        public override void Show()
         {
             if (Visible) return;
 
@@ -1085,6 +1085,14 @@ namespace Client.MirScenes.Dialogs
                     AnimExCount = 8;
                     AnimExDelay = 300;
                     break;
+                case IntelligentCreatureType.MedicalRat:
+                    AnimDefaultIdx = 1550;
+                    AnimDefaultCount = 8;
+                    AnimDefaultDelay = 300;
+                    AnimExIdx = 1560;
+                    AnimExCount = 16;
+                    AnimExDelay = 300;
+                    break;
                 case IntelligentCreatureType.None:
                     AnimDefaultIdx = 539;
                     AnimDefaultCount = 1;
@@ -1225,11 +1233,6 @@ namespace Client.MirScenes.Dialogs
             }
         }
 
-        public void Hide()
-        {
-            if (!Visible) return;
-            Visible = false;
-        }
         public void Show(IntelligentCreatureItemFilter filter)
         {
             if (Visible) return;
@@ -1351,11 +1354,6 @@ namespace Client.MirScenes.Dialogs
             GradeLabel.ForeColour = GradeNameColor(GradeType);
         }
 
-        public void Hide()
-        {
-            if (!Visible) return;
-            Visible = false;
-        }
 
         public void Show(ItemGrade grade)
         {

@@ -222,12 +222,6 @@ namespace Server.MirObjects
                     return new StoningStatue(info);
                 //unfinished END
 
-
-                case 200://custom
-                    return new Runaway(info);
-                case 201://custom
-                    return new TalkingMonster(info);
-
                 default:
                     return new MonsterObject(info);
             }
@@ -302,6 +296,8 @@ namespace Server.MirObjects
             {
                 switch (Info.AI)
                 {
+                    case 64:
+                        return 0;
                     case 81:
                     case 82:
                         return int.MaxValue;
@@ -425,12 +421,13 @@ namespace Server.MirObjects
 
         public override void Spawned()
         {
-            base.Spawned();
             ActionTime = Envir.Time + 2000;
-            if (Info.HasSpawnScript && (SMain.Envir.MonsterNPC != null))
+            if (Info.HasSpawnScript && (Envir.MonsterNPC != null))
             {
-                SMain.Envir.MonsterNPC.Call(this,string.Format("[@_SPAWN({0})]", Info.Index));
+                Envir.MonsterNPC.Call(this,string.Format("[@_SPAWN({0})]", Info.Index));
             }
+
+            base.Spawned();
         }
 
         protected virtual void RefreshBase()
@@ -644,9 +641,9 @@ namespace Server.MirObjects
 
             Broadcast(new S.ObjectDied { ObjectID = ObjectID, Direction = Direction, Location = CurrentLocation });
 
-            if (Info.HasDieScript && (SMain.Envir.MonsterNPC != null))
+            if (Info.HasDieScript && (Envir.MonsterNPC != null))
             {
-                SMain.Envir.MonsterNPC.Call(this,string.Format("[@_DIE({0})]", Info.Index));
+                Envir.MonsterNPC.Call(this,string.Format("[@_DIE({0})]", Info.Index));
             }
 
             if (EXPOwner != null && Master == null && EXPOwner.Race == ObjectType.Player)
@@ -1146,7 +1143,6 @@ namespace Server.MirObjects
                         DamageRate += 0.5F;
                         break;
                     case PoisonType.Slow:
-
                         MoveSpeed = (ushort)Math.Min(3500, MoveSpeed + 100);
                         AttackSpeed = (ushort)Math.Min(3500, AttackSpeed + 100);
  
@@ -1224,6 +1220,9 @@ namespace Server.MirObjects
                 if (Envir.Time <= buff.ExpireTime) continue;
 
                 Buffs.RemoveAt(i);
+
+                if (buff.Visible)
+                    Broadcast(new S.RemoveBuff { Type = buff.Type, ObjectID = ObjectID });
 
                 switch (buff.Type)
                 {
@@ -1856,7 +1855,7 @@ namespace Server.MirObjects
             }
             else if (attacker.Info.AI == 58) // Tao Guard - attacks Pets
             {
-                if (Info.AI != 1 && Info.AI != 2 && Info.AI != 3) //Not Dear/Hen/Tree
+                if (Info.AI != 1 && Info.AI != 2 && Info.AI != 3 && (Master == null || Master.AMode != AttackMode.Peace)) //Not Dear/Hen/Tree or Peaceful Master
                     return true;
             }
             else if (Master != null) //Pet Attacked
@@ -2232,8 +2231,9 @@ namespace Server.MirObjects
                     Poison = CurrentPoison,
                     Hidden = Hidden,
                     ShockTime = (ShockTime > 0 ? ShockTime - Envir.Time : 0),
-                    BindingShotCenter = BindingShotCenter
-                };
+                    BindingShotCenter = BindingShotCenter,
+                    Buffs = Buffs.Where(d => d.Visible).Select(e => e.Type).ToList()
+            };
         }
 
         public override void ReceiveChat(string text, ChatType type)

@@ -10,6 +10,21 @@ namespace Server.MirDatabase
 {
     public class MonsterInfo
     {
+        protected static Envir Envir
+        {
+            get { return Envir.Main; }
+        }
+
+        protected static Envir EditEnvir
+        {
+            get { return Envir.Edit; }
+        }
+
+        protected static MessageQueue MessageQueue
+        {
+            get { return MessageQueue.Instance; }
+        }
+
         public int Index;
         public string Name = string.Empty;
 
@@ -52,7 +67,7 @@ namespace Server.MirDatabase
             }
 
             ViewRange = reader.ReadByte();
-            if (Envir.LoadVersion >= 3) CoolEye = reader.ReadByte();
+            CoolEye = reader.ReadByte();
 
             HP = reader.ReadUInt32();
 
@@ -90,14 +105,6 @@ namespace Server.MirDatabase
             AttackSpeed = reader.ReadUInt16();
             MoveSpeed = reader.ReadUInt16();
             Experience = reader.ReadUInt32();
-
-            if (Envir.LoadVersion < 6)
-            {
-                reader.BaseStream.Seek(8, SeekOrigin.Current);
-
-                int count = reader.ReadInt32();
-                reader.BaseStream.Seek(count*12, SeekOrigin.Current);
-            }
 
             CanPush = reader.ReadBoolean();
             CanTame = reader.ReadBoolean();
@@ -186,7 +193,7 @@ namespace Server.MirDatabase
                 DropInfo drop = DropInfo.FromLine(lines[i]);
                 if (drop == null)
                 {
-                    SMain.Enqueue(string.Format("Could not load Drop: {0}, Line {1}", Name, lines[i]));
+                    MessageQueue.Enqueue(string.Format("Could not load Drop: {0}, Line {1}", Name, lines[i]));
                     continue;
                 }
 
@@ -254,8 +261,8 @@ namespace Server.MirDatabase
 
             //if (28 + count * 3 > data.Length) return;
 
-            info.Index = ++SMain.EditEnvir.MonsterIndex;
-            SMain.EditEnvir.MonsterInfoList.Add(info);
+            info.Index = ++EditEnvir.MonsterIndex;
+            EditEnvir.MonsterInfoList.Add(info);
         }
         public string ToText()
         {
@@ -273,6 +280,11 @@ namespace Server.MirDatabase
 
     public class DropInfo
     {
+        protected static Envir Envir
+        {
+            get { return Envir.Main; }
+        }
+
         public int Chance;
         public ItemInfo Item;
         public uint Gold;
@@ -284,6 +296,11 @@ namespace Server.MirDatabase
         {
             string[] parts = s.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
 
+            if (parts.Length < 2)
+            {
+                return null;
+            }
+
             DropInfo info = new DropInfo();
 
             if (!int.TryParse(parts[0].Substring(2), out info.Chance)) return null;
@@ -294,7 +311,7 @@ namespace Server.MirDatabase
             }
             else
             {
-                info.Item = SMain.Envir.GetItemInfo(parts[1]);
+                info.Item = Envir.GetItemInfo(parts[1]);
                 if (info.Item == null) return null;
 
                 if (parts.Length > 2)
